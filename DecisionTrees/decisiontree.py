@@ -3,11 +3,11 @@ import scipy.io as sio
 from sklearn.cross_validation import KFold
 
 class DecisionTree:
-	def __init__(self, min_leaf=1, m=None, depth=1):
-		self.rootNode = None
+	def __init__(self, min_leaf=1, m=None, max_depth="inf", curr_depth=1):
 		self.MIN_LEAF = min_leaf
 		self.M = m
-		self.DEPTH = depth
+		self.CURR_DEPTH = curr_depth
+		self.MAX_DEPTH = max_depth
 	
 	def train(self, data, labels):
 		'''Grows a decision tree by constructing nodes. Using the impurity and segmenter
@@ -19,17 +19,20 @@ class DecisionTree:
 
 		node_label = np.argmax(np.bincount(labels))
 		self.rootNode = Node(label=node_label, size=len(data), min_leaf=self.MIN_LEAF, tree=self, m=self.M)
-		self.rootNode.segmenter(data, labels, node_label)
+
+		#split if you haven't reached max depth:
+		if self.CURR_DEPTH < self.MAX_DEPTH:
+			self.rootNode.segmenter(data, labels, node_label)
 		
 		if self.rootNode.split_rule != None: 
 			#walk down right side of tree
-			right = DecisionTree(self.MIN_LEAF, m=self.M, depth=self.DEPTH+1)
+			right = DecisionTree(self.MIN_LEAF, m=self.M, max_depth=self.MAX_DEPTH, curr_depth=self.CURR_DEPTH+1)
 			right_inds, left_inds = self.rootNode.split(data, self.rootNode.split_rule)
 			right.train(data[right_inds],labels[right_inds])
 			self.rootNode.right = right.rootNode
 			
 			#walk down left side of tree
-			left = DecisionTree(self.MIN_LEAF, m=self.M, depth = self.DEPTH+1)
+			left = DecisionTree(self.MIN_LEAF, m=self.M, max_depth=self.MAX_DEPTH, curr_depth=self.CURR_DEPTH+1)
 			left.train(data[left_inds],labels[left_inds])
 			self.rootNode.left = left.rootNode
 			
