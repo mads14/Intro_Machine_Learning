@@ -1,1 +1,1 @@
-# osm_scraper
+# Intro to Machine Learning (CS289)
