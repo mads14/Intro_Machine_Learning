@@ -1,8 +1,30 @@
+
+__author__ = "Madeleine Sheehan"
+__date__ = "Spring 2016"
+
+
 import numpy as np
 import scipy.io as sio
 from sklearn.cross_validation import KFold
 
+
 class DecisionTree:
+	'''Decision Tree Classification.
+
+	Splits data on the input and value that creates the lowest impurity in two children nodes. 
+
+
+	PARAMETERS
+	---------
+	MIN_LEAF = minimum node size. Will not split a node if number of samples <= min_leaf.
+	CURR_DEPTH = Note, decision tree is recursive - each node is the root or parent node of 
+		child nodes. curr_depth represent the depth of the current node in the master
+		tree.
+	MAX_DEPTH = maximum tree depth. Will not split if node depth is >= max_depth.
+	M = number of randomly selected features to split on for each node. Used primarily
+		when decision tree is called from within random forest.  
+	'''
+
 	def __init__(self, min_leaf=1, m=None, max_depth="inf", curr_depth=1):
 		self.MIN_LEAF = min_leaf
 		self.M = m
@@ -101,17 +123,28 @@ class DecisionTree:
 			return labels_, errors
 
 class Node:
-	def __init__(self, label=None, size=None, tree=None, min_leaf=1, m=None):
-		'''
-		- split_rule: A length 2 tuple that details what feature to split on at a node,
-		as well as the threshold value at which you should split at. The former can 
+	 '''
+	Nodes are the building blocks of the decision tree. 
+	
+	PARAMETERS
+	___________
+	split_rule = A length 2 tuple that details what feature to split on at a node,
+		as well as the threshold value at which you should split at. The former can
 		be encoded as an integer index into your data point's feature vector.
-		- left: The left child of the current node.
-		- right: The left child of the current node.
-		- label If this field is set, the Node is a leaf node, and the field contains the 
-		label with which you should classify a data point as, assuming you reached this node
-		during your classification tree traversal. Typically, the label is the mode of the 
-		labels of the training data points arriving at this node.'''
+	left = The left child of the current node.
+	right = The left child of the current node.
+	label = Node label (class) if node is a leaf, else, None. 
+                label with which you should classify a data point as, assuming you reached 
+		this node. The label is the mode of the labels of the training data points 
+		arriving at this node.
+	size = Number of samples in this node (when training)
+	tree = pointer to decision tree that this node is the root of.
+	M = number of randomly selected features to try for the split. (for random forest)
+	MIN_LEAF = minimum leaf size. Do not split if number of samples <= min_leaf.
+	'''
+
+
+	def __init__(self, label=None, size=None, tree=None, min_leaf=1, m=None):
 		
 		self.label = label
 		self.size = size
@@ -148,8 +181,7 @@ class Node:
 		threshold values from the data and choosing the combination of split feature and 
 		threshold with the lowest impurity value. The final split rule uses the split 
 		feature with the lowest impurity value and the threshold chosen by the segmenter. 
-		Be careful how you implement this method! Your classifier might train very slowly 
-		if you implement this badly.'''
+		'''
 		
 		min_impurity = 1.0
 
