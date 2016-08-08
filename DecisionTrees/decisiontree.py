@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 __author__ = "Madeleine Sheehan"
 __date__ = "Spring 2016"
